@@ -1,13 +1,10 @@
 {
-  "functions": {
-    "api/index.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "routes": [
+  "buildCommand": "bun run build",
+  "outputDirectory": "dist/client",
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/api"
+      "source": "/(.*)",
+      "destination": "/api/index"
     }
   ]
 }

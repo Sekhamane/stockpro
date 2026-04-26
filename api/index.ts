@@ -1,3 +1,9 @@
-import handler from "../dist/server/index.js";
+import server from "../dist/server/server.js";
 
-export default handler;
+export const config = {
+	runtime: "edge",
+};
+
+export default async function handler(request: Request): Promise<Response> {
+	return server.fetch(request);
+}

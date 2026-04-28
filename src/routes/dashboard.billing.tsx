@@ -188,11 +188,13 @@ function BillingPage() {
         <div className="mt-4 grid gap-3 rounded-md border bg-muted/40 p-4 text-sm sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase text-muted-foreground">M-Pesa</p>
-            <p>Pay to: <span className="font-medium">+266 5XXX XXXX</span></p>
+            <p>Pay to: <span className="font-medium">+266 5764 8563</span></p>
+            <p className="text-xs text-muted-foreground">Seithati Sekhamane</p>
           </div>
           <div>
             <p className="text-xs font-semibold uppercase text-muted-foreground">EcoCash</p>
-            <p>Pay to: <span className="font-medium">+266 6XXX XXXX</span></p>
+            <p>Pay to: <span className="font-medium">+266 6348 4748</span></p>
+            <p className="text-xs text-muted-foreground">Seithati Sekhamane</p>
           </div>
         </div>
 

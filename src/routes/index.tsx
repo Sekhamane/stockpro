@@ -115,7 +115,7 @@ function Landing() {
                     size="lg"
                     className="bg-primary shadow-lg shadow-primary/25 hover:bg-primary/90"
                   >
-                    Start 14-day free trial
+                    Start 7-day free trial
                     <ArrowRight className="ml-1.5 h-4 w-4" />
                   </Button>
                 </Link>
@@ -163,7 +163,7 @@ function Landing() {
           {[
             { v: "5 min", l: "Setup time" },
             { v: "M 200", l: "Per month" },
-            { v: "14 days", l: "Free trial" },
+            { v: "7 days", l: "Free trial" },
             { v: "3", l: "Payment methods" },
           ].map((s) => (
             <div key={s.l} className="text-center">
@@ -364,7 +364,7 @@ function Landing() {
               M 200
               <span className="text-base font-normal text-muted-foreground">/month</span>
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">14-day free trial included</p>
+            <p className="mt-1 text-xs text-muted-foreground">7-day free trial included</p>
             <ul className="mt-7 space-y-3 text-sm">
               {[
                 "Unlimited products",
@@ -495,7 +495,7 @@ function Landing() {
                 a: "Yes. The reports page lets you export sales as a CSV file you can open in Excel or send to your accountant.",
               },
               {
-                q: "What happens after the 14-day trial?",
+                q: "What happens after the 7-day trial?",
                 a: "You can pay monthly (M 200) or yearly (M 2,160). Submit proof of payment from the billing screen and we activate your subscription within hours.",
               },
               {
@@ -538,7 +538,7 @@ function Landing() {
               Ready to know what your shop really makes?
             </h2>
             <p className="mt-4 text-primary-foreground/80">
-              Start your 14-day free trial today. No credit card. Cancel anytime.
+              Start your 7-day free trial today. No credit card. Cancel anytime.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link to="/signup">

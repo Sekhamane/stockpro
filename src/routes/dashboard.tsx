@@ -1,6 +1,11 @@
 import { createFileRoute, Outlet, useNavigate, Link, useLocation } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useAuth, hasActiveAccess } from "@/contexts/AuthContext";
+import {
+  useAuth,
+  hasActiveAccess,
+  getEffectiveSubscriptionStatus,
+  getSubscriptionDaysLeft,
+} from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -28,6 +33,12 @@ function DashboardLayout() {
   const location = useLocation();
   const { session, loading, shop, signOut, isPlatformAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [timeTick, setTimeTick] = useState(() => Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => setTimeTick(Date.now()), 60_000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -56,7 +67,7 @@ function DashboardLayout() {
     if (!hasActiveAccess(shop) && !onBilling) {
       navigate({ to: "/dashboard/billing" });
     }
-  }, [shop, location.pathname, navigate]);
+  }, [shop, location.pathname, navigate, timeTick]);
 
   if (loading || !session) {
     return (
@@ -302,14 +313,17 @@ function SidebarContent({
 
 function SubscriptionBadge() {
   const { shop } = useAuth();
+  const [timeTick, setTimeTick] = useState(() => Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => setTimeTick(Date.now()), 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (!shop) return null;
 
-  const daysLeft = shop.expiry_date
-    ? Math.max(
-        0,
-        Math.ceil((new Date(shop.expiry_date).getTime() - Date.now()) / 86400000),
-      )
-    : 0;
+  const effectiveStatus = getEffectiveSubscriptionStatus(shop, timeTick);
+  const daysLeft = getSubscriptionDaysLeft(shop, timeTick);
 
   const colorMap: Record<string, string> = {
     trial: "bg-gold/15 text-foreground border-gold/40",
@@ -325,14 +339,16 @@ function SubscriptionBadge() {
     pending_verification: "Pending verification",
   };
 
+  if (!effectiveStatus) return null;
+
   return (
     <span
       className={cn(
         "rounded-full border px-3 py-1 text-xs font-medium",
-        colorMap[shop.subscription_status],
+        colorMap[effectiveStatus],
       )}
     >
-      {labelMap[shop.subscription_status]}
+      {labelMap[effectiveStatus]}
     </span>
   );
 }

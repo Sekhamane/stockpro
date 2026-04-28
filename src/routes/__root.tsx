@@ -35,14 +35,14 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Affordable POS, inventory, and expense tracking built for shops in Lesotho. 14-day free trial.",
+          "Affordable POS, inventory, and expense tracking built for shops in Lesotho. 7-day free trial.",
       },
       { name: "author", content: "StockMaster Pro" },
       { property: "og:title", content: "StockMaster Pro — Retail & Inventory for Lesotho" },
       {
         property: "og:description",
         content:
-          "Affordable POS, inventory, and expense tracking built for shops in Lesotho. 14-day free trial.",
+          "Affordable POS, inventory, and expense tracking built for shops in Lesotho. 7-day free trial.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

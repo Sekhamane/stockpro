@@ -5,12 +5,20 @@ import { PLATFORM_ADMIN_EMAIL, supabase } from "@/integrations/supabase/client";
 export type ShopRole = "admin" | "cashier";
 export type SubscriptionStatus = "trial" | "active" | "expired" | "pending_verification";
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 export interface ShopContext {
   shop_id: string;
   shop_name: string;
   role: ShopRole;
   subscription_status: SubscriptionStatus;
   expiry_date: string | null;
+}
+
+function getExpiryTimestamp(expiryDate: string | null): number | null {
+  if (!expiryDate) return null;
+  const ts = new Date(expiryDate).getTime();
+  return Number.isFinite(ts) ? ts : null;
 }
 
 interface AuthContextValue {
@@ -49,11 +57,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setShop(null);
       return;
     }
+    const rawStatus = s.subscription_status as SubscriptionStatus;
+    const expiryTs = getExpiryTimestamp((s.expiry_date as string | null) ?? null);
+    const shouldMarkExpired =
+      (rawStatus === "trial" || rawStatus === "active") &&
+      expiryTs !== null &&
+      expiryTs <= Date.now();
+
+    if (shouldMarkExpired) {
+      void supabase
+        .from("shops")
+        .update({ subscription_status: "expired" })
+        .eq("id", s.id as string);
+    }
+
     setShop({
       shop_id: s.id as string,
       shop_name: s.name as string,
       role: data.role as ShopRole,
-      subscription_status: s.subscription_status as SubscriptionStatus,
+      subscription_status: shouldMarkExpired ? "expired" : rawStatus,
       expiry_date: (s.expiry_date as string | null) ?? null,
     });
   };
@@ -135,10 +157,30 @@ export function useAuth() {
 
 /** Returns true if shop has working access (trial or active and not expired). */
 // eslint-disable-next-line react-refresh/only-export-components
+export function getEffectiveSubscriptionStatus(
+  shop: ShopContext | null,
+  nowMs = Date.now(),
+): SubscriptionStatus | null {
+  if (!shop) return null;
+  if (shop.subscription_status === "expired") return "expired";
+  if (shop.subscription_status === "pending_verification") return "pending_verification";
+
+  const expiryTs = getExpiryTimestamp(shop.expiry_date);
+  if (expiryTs !== null && expiryTs <= nowMs) return "expired";
+
+  return shop.subscription_status;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function getSubscriptionDaysLeft(shop: ShopContext | null, nowMs = Date.now()): number {
+  if (!shop?.expiry_date) return 0;
+  const expiryTs = getExpiryTimestamp(shop.expiry_date);
+  if (expiryTs === null) return 0;
+  return Math.max(0, Math.ceil((expiryTs - nowMs) / DAY_MS));
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
 export function hasActiveAccess(shop: ShopContext | null): boolean {
-  if (!shop) return false;
-  if (shop.subscription_status === "expired") return false;
-  if (shop.subscription_status === "pending_verification") return false;
-  if (!shop.expiry_date) return shop.subscription_status === "trial";
-  return new Date(shop.expiry_date).getTime() > Date.now();
+  const status = getEffectiveSubscriptionStatus(shop);
+  return status === "trial" || status === "active";
 }

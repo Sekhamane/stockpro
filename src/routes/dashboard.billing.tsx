@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { useAuth, hasActiveAccess } from "@/contexts/AuthContext";
+import {
+  useAuth,
+  hasActiveAccess,
+  getEffectiveSubscriptionStatus,
+  getSubscriptionDaysLeft,
+} from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,6 +49,7 @@ function BillingPage() {
   const [reference, setReference] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [timeTick, setTimeTick] = useState(() => Date.now());
 
   const planAmount = plan === "monthly" ? 200 : 2160;
 
@@ -60,6 +66,11 @@ function BillingPage() {
   useEffect(() => {
     load();
   }, [shop]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const interval = setInterval(() => setTimeTick(Date.now()), 60_000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (!isAdmin) {
     return (
@@ -121,7 +132,9 @@ function BillingPage() {
   };
 
   const active = hasActiveAccess(shop);
-  const expired = shop?.subscription_status === "expired";
+  const effectiveStatus = getEffectiveSubscriptionStatus(shop, timeTick);
+  const expired = effectiveStatus === "expired";
+  const daysLeft = getSubscriptionDaysLeft(shop, timeTick);
 
   return (
     <div className="space-y-6">
@@ -153,13 +166,13 @@ function BillingPage() {
           )}
           <div>
             <p className="font-semibold capitalize">
-              {shop?.subscription_status?.replace("_", " ")}
+              {effectiveStatus?.replace("_", " ") ?? "No subscription"}
             </p>
             <p className="text-sm text-muted-foreground">
               {expired
                 ? "Your subscription has expired. Please make payment and upload proof to continue using StockMaster Pro."
                 : shop?.expiry_date
-                  ? `Valid until ${new Date(shop.expiry_date).toLocaleDateString()}`
+                  ? `${daysLeft} day${daysLeft === 1 ? "" : "s"} left · Valid until ${new Date(shop.expiry_date).toLocaleDateString()}`
                   : "No active subscription"}
             </p>
           </div>

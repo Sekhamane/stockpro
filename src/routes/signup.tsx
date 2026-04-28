@@ -71,7 +71,7 @@ function SignupPage() {
     }
 
     setLoading(false);
-    toast.success("Welcome! Your 14-day free trial has started.");
+    toast.success("Welcome! Your 7-day free trial has started.");
     navigate({ to: admin ? "/admin" : "/dashboard" });
   };
 
@@ -89,7 +89,7 @@ function SignupPage() {
         <Card className="p-6">
           <h1 className="font-display text-2xl font-bold">Start your free trial</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            14 days free. No credit card needed.
+            7 days free. No credit card needed.
           </p>
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div className="space-y-2">
